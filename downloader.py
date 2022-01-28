@@ -161,10 +161,3 @@ class downloader:
             return -1
 
 
-root = downloader(
-    "https://ak.picdn.net/shutterstock/videos/1063144921/preview/stock-footage-the-timer-video-to-countdown-timer-video-on-the-black-background.webm",
-    maxSpeed=1500,
-    fileName="hello.webm",
-    downloadingFileName="hello.webm",
-)
-root.downlaod()
