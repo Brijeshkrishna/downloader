@@ -46,6 +46,12 @@ class downloader:
             self.fileName = self.downloadingFileName[0:-12]
         else:
             self.fileName = fileName
+
+        if self.downloadingFileName.__len__() >= 10:
+            self.downloadingFileName =self.downloadingFileName[-15:]
+        if self.fileName.__len__() >= 10:
+            self.fileName = self.fileName[-15:]
+
         self.session: requests.Session = requests.Session()
         self.intial_size: int = self.getFileData(self.downloadingFileName)
         self.requestsSend: int = 0
@@ -159,5 +165,3 @@ class downloader:
 
         except AttributeError:
             return -1
-
-
