@@ -215,16 +215,3 @@ class downloader:
         return False
 
 
-def printf(speed, da):
-    print(speed)
-
-
-d = downloader(
-    "https://www.python.org/ftp/python/3.10.4/Python-3.10.4.tar.xz",
-    "./testd/d",
-    "./downlaoding/s.dd",
-    fn_callback=printf,
-    fn_callback_argc={"da": "d"},
-)
-
-d.downlaod()
