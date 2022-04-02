@@ -25,7 +25,7 @@ SOFTWARE.
 import re
 
 def toascii(text:str):
-    return re.sub(r'[^a-zA-Z0-9]+','', text)
+    return re.sub(r'[^a-zA-Z0-9]+[_]','', text)
 
 
 

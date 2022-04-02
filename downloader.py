@@ -32,7 +32,7 @@ import re
 from .basic import speedMapper, toascii
 import threading
 
-MAX_FILENAME = 15
+MAX_FILENAME = 20
 
 
 class downloader:
@@ -172,7 +172,12 @@ class downloader:
                 if not self.isexist_fileName:
 
                     self.__child_download()
-                    os.rename(self.downloadingFileName, self.fileName)
+                    if not self.isexist_fileName:
+                        os.rename(self.downloadingFileName, self.fileName)
+                    else :
+                        rprint(
+                            "File already exist (you can delete the file *.downloading)"
+                        )
 
                 else:
 
@@ -197,7 +202,9 @@ class downloader:
 
         if not self.isexist_downloadingFileName:
             file_dir = os.path.dirname(self.downloadingFileName)
-            if not os.path.exists(file_dir):
+            print(self.downloadingFileName)
+            if  os.path.exists(file_dir):
+                print(file_dir)
                 os.makedirs(file_dir)
 
     @staticmethod
