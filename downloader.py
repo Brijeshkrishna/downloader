@@ -6,6 +6,7 @@ from rich.progress import Progress
 from rich import print as rprint
 import re
 from basic import speedMapper, toascii
+import threading
 
 MAX_FILENAME = 15
 
@@ -17,9 +18,10 @@ class downloader:
         save_as: Union[str, None] = None,
         downloadingFileName: Union[str, None] = None,
         maxSpeed: int = 126976,
-        disable_progress_bar: bool = False,
         fn_callback=None,
         fn_callback_argc: Dict = {},
+        thread :bool=False,
+        rich_progressbar_args:Dict={"disable":False}
     ) -> None:
 
         self.url: str
@@ -28,8 +30,8 @@ class downloader:
         self.callback = fn_callback
         self.maxSpeed: int = maxSpeed
         self.fn_callback_argc: Dict = fn_callback_argc
-        self.disable_progress_bar: bool = disable_progress_bar
-
+        self.isthreading = thread
+        self.rich_progressbar_args =rich_progressbar_args
         # check url
         if self.isUrl(url):
             self.url = url
@@ -68,6 +70,11 @@ class downloader:
         # is downloadingFileName exists
         self.isexist_downloadingFileName = os.path.exists(self.downloadingFileName)
 
+        self.thread = threading.Thread(target=self._downlaod)  
+
+   
+
+
     def __child_download(self):
 
         endbyte: int = self.maxSpeed - 1 + self.intial_size
@@ -76,7 +83,7 @@ class downloader:
         headers: dict
         counter: int
 
-        with Progress(disable=self.disable_progress_bar) as progress:
+        with Progress(**self.rich_progressbar_args) as progress:
             with open(self.downloadingFileName, "ab") as file:
                 task = progress.add_task(
                     "[red]Downloading...",
@@ -107,9 +114,17 @@ class downloader:
                         advance=self.maxSpeed,
                         description=f"[blue]Speed [green bold]{speedMapper(cur_speed)} [red]Downloading[green] [{downloaded_size}]....",
                     )
-                    self.callback(speed=cur_speed, **self.fn_callback_argc)
-
-    def downlaod(self):
+                    if not self.callback == None:
+                        self.callback(cur_speed, **self.fn_callback_argc)
+    
+    def download(self):
+        if self.isthreading:
+            self.thread.start()
+        else: 
+            self._downlaod()
+            
+   
+    def _downlaod(self):
 
         self.create_dir()
 
