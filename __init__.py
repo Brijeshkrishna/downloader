@@ -1,2 +1,1 @@
-import imp
-from downloader import downloader
+from downloader.downloader import downloader

@@ -5,7 +5,7 @@ import os
 from rich.progress import Progress
 from rich import print as rprint
 import re
-from basic import speedMapper, toascii
+from .basic import speedMapper, toascii
 import threading
 
 MAX_FILENAME = 15
