@@ -4,7 +4,6 @@ from typing import Dict, Optional
 import requests
 import os
 from rich.progress import Progress
-from basic import speedMapper
 from error import file_is_corecpted
 
 
