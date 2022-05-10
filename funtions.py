@@ -1,3 +1,4 @@
+
 from basic import toascii, get_url_validater
 import re
 from error import invalid_url, file_not_found, cant_create_file,file_already_exists
@@ -36,16 +37,14 @@ def check_url(url: str) -> None:
         invalid_url(url)
 
 
-def realease_file(filename: str) -> None:
-    if os.path.exists(filename):
-
-        if os.path.exists(filename[0:-12]):
-            file_already_exists(filename[0:-12])
-        else:
-            os.rename(filename, filename[0:-12])
-        
+def realease_file(filename_path: str) -> None:
+    if os.path.exists(filename_path):
+        real_file_path = os.path.splitext(filename_path)[0]
+        if os.path.exists(real_file_path):
+            os.remove(real_file_path)
+        os.rename(filename_path, real_file_path)
     else:
-        file_not_found(filename)
+        file_not_found(filename_path)
 
 
 def filename_bypassing(filename: str, inc: int = 0, trys: int = 2) -> str:
@@ -64,14 +63,15 @@ def filename_bypassing(filename: str, inc: int = 0, trys: int = 2) -> str:
     return filename
 
 
-def create_file(filename_path: str) -> str:
-    full_filename_path = os.path.abspath(filename_path)
-    if not os.path.exists(full_filename_path):
-        if not os.path.exists(os.path.dirname(full_filename_path)):
-            os.makedirs(os.path.dirname(full_filename_path))
+def create_file(temp_file_path: str) -> None:
 
-        with open(full_filename_path,"w"):
-            pass
+    if os.path.exists(os.path.splitext(temp_file_path)[0]):
+        file_already_exists(temp_file_path)
+
+    full_temp_path = os.path.abspath(temp_file_path)
+    if not os.path.exists(full_temp_path):
+        if not os.path.exists(os.path.dirname(full_temp_path)):
+            os.makedirs(os.path.dirname(full_temp_path))
 
 
 
