@@ -15,7 +15,7 @@ class downloader:
         self,
         url: str,
         save_as: Optional[str] = None,
-        buffer_size: int = 126976,
+        buffer_size: int = 1269760,
         fn_callback=None,
         fn_callback_argc: Dict = {},
         create_new_thread: bool = False,
@@ -136,3 +136,5 @@ class downloader:
                 return -1
 
 
+d= downloader("https://download-cdn.jetbrains.com/resharper/dotUltimate.2022.1.1/JetBrains.ReSharper.CommandLineTools.2022.1.1.zip")
+d.start_downlaod()
