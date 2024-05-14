@@ -18,7 +18,7 @@ def file_is_corecpted(filename):
 
 
 def file_already_exists(filename):
-    raise Exception(f"{filename} file already exists")
+    raise Exception(f"{filename[:-12]} file already exists")
 # # class invalid_url(Exception):
 # #     def __init__(self,url):
 # #         self.url =url

@@ -15,7 +15,8 @@ class downloader:
         self,
         url: str,
         save_as: Optional[str] = None,
-        buffer_size: int = 1269760,
+        default_directory: str = "./",
+        buffer_size: int = 126976,
         fn_callback=None,
         fn_callback_argc: Dict = {},
         create_new_thread: bool = False,
@@ -36,7 +37,7 @@ class downloader:
         check_url(url)
 
         ###################### get the file path #######################
-        self.file_path = get_filename(self.url, self.file_path)
+        self.file_path = get_filename(self.url,default_directory, self.file_path)
 
         ################get size of partially downloaded file ##########
         self.intial_size: int = self.getFileSize(self.file_path)
@@ -64,7 +65,7 @@ class downloader:
 
                 while startbyte <= self.total_size:
                     start_time = time.perf_counter_ns()
-
+                    #print({"Range": f"bytes={startbyte}-{endbyte}"})
                     rv = self.session.get(
                         self.url,
                         stream=True,
@@ -89,6 +90,10 @@ class downloader:
                     )
                     if self.callback != None:
                         self.callback(cur_speed, **self.fn_callback_argc)
+
+    def start_async_download(self):
+        pass
+
 
     def start_downlaod(self):
 
@@ -136,5 +141,5 @@ class downloader:
                 return -1
 
 
-d= downloader("https://download-cdn.jetbrains.com/resharper/dotUltimate.2022.1.1/JetBrains.ReSharper.CommandLineTools.2022.1.1.zip")
+d= downloader("https://download-cdn.jetbrains.com/resharper/dotUltimate.2022.1.1/JetBrains.ReSharper.CommandLineTools.2022.1.1.zip",default_directory="./output")
 d.start_downlaod()

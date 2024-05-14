@@ -1,0 +1,83 @@
+import asyncio
+import aiohttp
+import os
+
+
+class gen_ranges:
+    def __init__(self, buffer_size, from_size, to_size):
+        self.start = from_size
+        self.end = from_size + buffer_size
+
+        self.buffer_size = buffer_size
+        self.first_loop = 1
+        self.to_size = to_size
+
+        if self.end > self.to_size:
+            self.end = self.to_size
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+
+        if self.first_loop:
+            self.first_loop = 0
+            return {"Range": f"bytes={self.start}-{self.end}"}
+
+        self.start = self.end + 1
+        self.end = self.end + self.buffer_size
+
+        if self.start >= self.to_size:
+            raise StopIteration
+
+        if self.end > self.to_size:
+            self.end = self.to_size
+
+        return {"Range": f"bytes={self.start}-{self.end}"}
+
+
+
+
+def createfile(filename):
+    pwd = os.getcwd()
+    os.chdir("./temp")
+    files = os.listdir(".")
+    files.sort()
+    cmd = "cat "
+    for i in files:
+        cmd += i + " "
+    cmd = cmd + ">> " + filename
+    os.system(cmd)
+    os.chdir(pwd)
+
+
+def get_filename(header):
+    header = str(header).split("=")[1].replace("'}", "").split("-")
+    return f"{header[0]}-{header[1]}.part"
+
+
+URL = "https://download-cdn.jetbrains.com/resharper/dotUltimate.2022.1.1/JetBrains.ReSharper.CommandLineTools.2022.1.1.zip"
+
+async def fetch(session: aiohttp.ClientSession, headers):
+    for header in headers:
+        async with session.get(URL,headers=header) as response:
+            await response.read()
+            print(header)
+
+
+async def main(headers):
+    tasks=[]
+    async with aiohttp.ClientSession() as session:
+            for _ in range(4):
+                tasks.append(fetch(session, headers))
+            
+            await asyncio.gather(*tasks)
+
+
+def run(headers):
+    asyncio.run(main(headers))
+
+
+headers = gen_ranges(1269760, 0, 111503590)
+run(headers)
+

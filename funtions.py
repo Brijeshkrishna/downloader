@@ -16,12 +16,14 @@ def isyoutue(url: str):
     return 1 if url.split("/")[2].split(".")[1] == "googlevideo" else 0
 
 
-def get_filename(url: str, filename: str = "") -> str:
+def get_filename(url: str,default_directory, filename: str = "",) -> str:
     # get last text as filename
     if filename == None:
+        if default_directory[-1] != '/':
+            default_directory=default_directory+'/'
         filename = url.split("?")[0]
 
-        filename = filename.split("/")[-1]
+        filename = default_directory+filename.split("/")[-1]
 
         # filter non ascii char and select only the max filename lenght
         filename = toascii(filename)[0:249]

@@ -267,108 +267,102 @@
 
 import asyncio
 import aiohttp
-from collections import deque
-import os 
-ranges = deque()
+import os
+import cProfile
+import pstats
+import aiofiles
+
 
 
 class gen_ranges:
-    def __init__(self, buffer_size, size):
-        self.start = 0
-        self.end = buffer_size - 1
+    def __init__(self, buffer_size, from_size, to_size):
+        self.start = from_size
+        self.end = from_size + buffer_size
         self.buffer_size = buffer_size
         self.first_loop = 1
-        self.size = size
+        self.to_size = to_size
+        if self.end > self.to_size:
+            self.end = self.to_size
 
     def __iter__(self):
         return self
 
     def __next__(self):
-
         if self.first_loop:
             self.first_loop = 0
             return {"Range": f"bytes={self.start}-{self.end}"}
 
         self.start = self.end + 1
         self.end = self.end + self.buffer_size
-        if self.start >= self.size:
+
+        if self.start >= self.to_size:
             raise StopIteration
-        if self.end > self.size:
-            self.end = self.size
+
+        if self.end > self.to_size:
+            self.end = self.to_size
 
         return {"Range": f"bytes={self.start}-{self.end}"}
 
 
-URL = "https://download.jetbrains.com/datagrip/datagrip-2022.1.3.tar.gz"
+URL = "https://download-cdn.jetbrains.com/resharper/dotUltimate.2022.1.1/JetBrains.ReSharper.CommandLineTools.2022.1.1.zip"
+
+
 def createfile(filename):
     pwd = os.getcwd()
     os.chdir("./temp")
-    files=os.listdir(".")
+    files = os.listdir(".")
     files.sort()
-    cmd ="cat "
+    cmd = "cat "
     for i in files:
-        cmd += i+" "
-    cmd = cmd + ">> "+ filename
+        cmd += i + " "
+    cmd = cmd + ">> " + filename
     os.system(cmd)
     os.chdir(pwd)
 
 
-import cProfile
-import pstats
 
 
 
-rr = gen_ranges(1269760, 111503590)
 def getfile(h):
-    h= str(h).split("=")[1].replace("'}","").split("-")
+    h = str(h).split("=")[1].replace("'}", "").split("-")
     return f"{h[0]}_{h[1]}"
 
 
-async def fetch(session: aiohttp.ClientSession):
-    for headers in rr:
-        with open('./temp/'+getfile(headers),"wb") as f:
-            async with session.get(URL, headers=headers) as response:
-                f.write(await response.read())
-                print(response.status)
+async def fetch(session: aiohttp.ClientSession, headers,id):
+    for header in headers:
+        async with session.get(URL,headers=header) as response:
+            await response.read()
+            print(header,id)
 
 
-
-async def main():
-  
-
-    with cProfile.Profile() as pr:
-        async with aiohttp.ClientSession() as session:
-            tasks = [fetch(session) for _ in range(64)]
-            print(tasks)
+async def main(headers):
+    tasks=[]
+    async with aiohttp.ClientSession() as session:
+            for i in range(4):
+                tasks.append(fetch(session, headers,i))
             await asyncio.gather(*tasks)
 
 
+def run(headers):
+    asyncio.run(main(headers))
 
-    staus = pstats.Stats(pr)
-    staus.sort_stats(pstats.SortKey.TIME)
-    #staus.print_stats()
-    staus.dump_stats("dow.prof")
-    createfile("datagrip-2022.1.3.tar.gz")
 
-  
-# from concurrent.futures import ThreadPoolExecutor
+# headers = gen_ranges(1269760, 0, 111503590)
+# run(headers)
 
-# async def create_task(session):
-
-#     tasks = [fetch(session) for _ in range(1)]
-#     await asyncio.gather(*tasks)
-
-# async def main():
+def asyncDownloader():
+    pass
     
-#     async with aiohttp.ClientSession() as session:
-#         with ThreadPoolExecutor(max_workers=1) as executor:
-            
-            
-#             executor.submit(create_task,session)
-            
-#             executor.shutdown(wait=True)
+
+# with cProfile.Profile() as pr:
 
 
-asyncio.run(main())
+# staus = pstats.Stats(pr)
+# staus.sort_stats(pstats.SortKey.TIME)
+# staus.print_stats()
+# staus.dump_stats("dow.prof")
+# #createfile("datagrip-2022.1.3.tar.gz")
 
-  
+
+with open("dow.prof","w") as f:
+    f.seek(0,5)
